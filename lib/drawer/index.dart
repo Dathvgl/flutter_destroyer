@@ -1,6 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_destroyer/config.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_destroyer/blocs/auth/auth_bloc.dart';
+import 'package:flutter_destroyer/cubits/theme/theme_cubit.dart';
+import 'package:flutter_destroyer/drawer/drawer_content.dart';
+import 'package:flutter_destroyer/drawer/drawer_footer.dart';
+import 'package:flutter_destroyer/drawer/drawer_header.dart';
+import 'package:flutter_destroyer/enum.dart';
+import 'package:flutter_destroyer/models/user/user.dart';
+
+class DrawerRootInherited extends InheritedWidget {
+  final UserModel user;
+  final AuthStatus authStatus;
+
+  const DrawerRootInherited({
+    super.key,
+    required this.user,
+    required this.authStatus,
+    required super.child,
+  });
+
+  static DrawerRootInherited? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<DrawerRootInherited>();
+  }
+
+  @override
+  bool updateShouldNotify(DrawerRootInherited oldWidget) {
+    return authStatus != oldWidget.authStatus;
+  }
+}
 
 class DrawerRoot extends StatelessWidget {
   const DrawerRoot({super.key});
@@ -8,25 +35,34 @@ class DrawerRoot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: config.length,
-            itemBuilder: (context, index) {
-              final item = config[index];
-              return ListTile(
-                title: Text(item.name),
-                onTap: () {
-                  context.go(item.path);
-                  Navigator.of(context).pop();
-                },
-              );
-            },
-          ),
-        ],
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          state.user;
+          return DrawerRootInherited(
+            user: state.status == AuthStatus.authenticated
+                ? state.user
+                : UserModel.empty,
+            authStatus: state.status,
+            child: BlocBuilder<ThemeCubit, ThemeState>(
+              builder: (context, state) {
+                return Container(
+                  color: state.useTheme.scaffoldBackgroundColor,
+                  child: const Column(
+                    children: [
+                      DrawerRootHeader(),
+                      DrawerRootContent(),
+                      Divider(
+                        height: 0,
+                        thickness: 1,
+                      ),
+                      DrawerRootFooter(),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }

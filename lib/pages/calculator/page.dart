@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_destroyer/screens/calculator/widgets/calculator_display.dart';
-import 'package:flutter_destroyer/screens/calculator/widgets/calculator_tile.dart';
+import 'package:flutter_destroyer/pages/calculator/widgets/calculator_display.dart';
+import 'package:flutter_destroyer/pages/calculator/widgets/calculator_tile.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class CalculatorTileModel {
@@ -96,8 +96,8 @@ final _listTile = [
   ),
 ];
 
-class CalculatorScreen extends StatelessWidget {
-  const CalculatorScreen({super.key});
+class CalculatorPage extends StatelessWidget {
+  const CalculatorPage({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_destroyer/screens/calculator/cubit/calculator_cubit.dart';
-import 'package:flutter_destroyer/screens/calculator/widgets/calculator_field.dart';
+import 'package:flutter_destroyer/cubits/calculator/calculator_cubit.dart';
+import 'package:flutter_destroyer/pages/calculator/widgets/calculator_field.dart';
 
 class CalculatorDisplay extends StatelessWidget {
   const CalculatorDisplay({super.key});

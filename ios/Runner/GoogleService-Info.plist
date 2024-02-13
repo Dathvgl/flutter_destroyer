@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>189724068141-phcj51makhsnrl9b2b9e39vokdt6qbei.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.189724068141-phcj51makhsnrl9b2b9e39vokdt6qbei</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>189724068141-0ae6s6s04ae231322nido58mc4jqj8pb.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyABDnpHeNOoDKirOHogYJdgdGRIYqL48hw</string>
+	<key>GCM_SENDER_ID</key>
+	<string>189724068141</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.flutterDestroyer</string>
+	<key>PROJECT_ID</key>
+	<string>crawlstorage</string>
+	<key>STORAGE_BUCKET</key>
+	<string>crawlstorage.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:189724068141:ios:0776def6e2a0fbc80f2ba4</string>
+	<key>DATABASE_URL</key>
+	<string>https://crawlstorage-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+</dict>
+</plist>
