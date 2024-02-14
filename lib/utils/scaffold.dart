@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_destroyer/drawer/index.dart';
-import 'package:flutter_destroyer/pages/manga/mangaChapter/manga_chapter_end_drawer.dart';
+import 'package:flutter_destroyer/pages/soulLand/components/base.dart';
+import 'package:flutter_destroyer/pages/soulLand/components/soul_land_bottom_navigation.dart';
 import 'package:go_router/go_router.dart';
 
 Widget _appBarLeading(BuildContext context) {
@@ -16,6 +17,9 @@ Scaffold scaffoldHandle(BuildContext context, Widget child, String path) {
   bool? centerTitle;
   Widget? leading;
   Widget? endDrawer;
+  Widget? bottomNavigationBar;
+  FloatingActionButtonLocation? floatingActionButtonLocation;
+  Widget? floatingActionButton;
 
   if (path.contains("/auth")) {
     title = "Đăng nhập";
@@ -57,6 +61,16 @@ Scaffold scaffoldHandle(BuildContext context, Widget child, String path) {
     }
   }
 
+  if (path.contains("/soulland")) {
+    title = "Idle";
+
+    bottomNavigationBar = const SoulLandBottomNavigation();
+
+    floatingActionButtonLocation = FloatingActionButtonLocation.miniStartFloat;
+
+    floatingActionButton = const LuaChonTuLuyen();
+  }
+
   return Scaffold(
     appBar: AppBar(
       title: Text(title),
@@ -70,6 +84,9 @@ Scaffold scaffoldHandle(BuildContext context, Widget child, String path) {
     ),
     drawer: const DrawerRoot(),
     endDrawer: endDrawer,
+    bottomNavigationBar: bottomNavigationBar,
+    floatingActionButtonLocation: floatingActionButtonLocation,
+    floatingActionButton: floatingActionButton,
     body: SafeArea(
       child: child,
     ),

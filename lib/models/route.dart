@@ -51,4 +51,10 @@ final routes = [
       path: "/manga",
       icon: Icons.menu_book,
     ),
+    RouteModel(
+      navigation: NavigateStatus.go,
+      name: "SoulLand",
+      path: "/soulland",
+      icon: Icons.landscape,
+    ),
   ];

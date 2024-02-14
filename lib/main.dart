@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_destroyer/blocs/auth/auth_bloc.dart';
 import 'package:flutter_destroyer/blocs/user/user_bloc.dart';
+import 'package:flutter_destroyer/cubits/bottomIndexed/bottom_indexed_cubit.dart';
 import 'package:flutter_destroyer/cubits/calculator/calculator_cubit.dart';
 import 'package:flutter_destroyer/cubits/cultivation/cultivation_cubit.dart';
 import 'package:flutter_destroyer/cubits/mangaType/manga_type_cubit.dart';
@@ -21,6 +22,7 @@ import 'package:flutter_destroyer/pages/manga/mangaChapter/manga_chapter_page.da
 import 'package:flutter_destroyer/pages/manga/mangaDetail/page.dart';
 import 'package:flutter_destroyer/pages/manga/page.dart';
 import 'package:flutter_destroyer/pages/setting_page.dart';
+import 'package:flutter_destroyer/pages/soulLand/components/soul_land_body.dart';
 import 'package:flutter_destroyer/resources/auth_repository.dart';
 import 'package:flutter_destroyer/resources/user_repository.dart';
 import 'package:flutter_destroyer/utils/scaffold.dart';
@@ -37,6 +39,25 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // runApp(
+  //   FutureBuilder(
+  //     future: DbHelper.instance.getTuTiens(),
+  //     builder: (context, snapshot) {
+  //       if (!snapshot.hasData) {
+  //         return const LoadingPage();
+  //       }
+
+  //       List<TuTien>? tutienList = snapshot.data as List<TuTien>?;
+  //       if (tutienList!.isEmpty) {
+  //         DbHelper.instance.add(TuTien());
+  //         return init(TuTien());
+  //       }
+
+  //       return init(tutienList.last);
+  //     },
+  //   ),
+  // );
 
   final tuTiens = await _initCultivation();
 
@@ -127,6 +148,11 @@ final _router = GoRouter(
                 ),
               ],
             ),
+            GoRoute(
+              parentNavigatorKey: _shellNavigatorKey,
+              path: "soulland",
+              builder: (context, state) => const SoulLandBody(),
+            ),
           ],
         ),
       ],
@@ -158,8 +184,9 @@ class MyApp extends StatelessWidget {
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (context) => CultivationCubit(tuTiens: tuTiens)),
           BlocProvider(create: (context) => ThemeCubit()),
+          BlocProvider(create: (context) => BottomIndexedCubit()),
+          BlocProvider(create: (context) => CultivationCubit(tuTiens: tuTiens)),
           BlocProvider(create: (context) => MangaTypeCubit()),
           BlocProvider(create: (context) {
             return AuthBloc(authRepository: _authRepository);
@@ -171,6 +198,9 @@ class MyApp extends StatelessWidget {
               userRepository: _userRepository,
             );
           }),
+          // ChangeNotifierProvider(
+          //   create: (_) => TuTien(),
+          // )
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, state) {
