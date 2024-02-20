@@ -1,11 +1,6 @@
-enum MangaTypes {
+enum MangaType {
   nettruyen,
   blogtruyen,
-}
-
-enum AuthStatus {
-  authenticated,
-  unauthenticated,
 }
 
 enum TuLuyenGioi {
