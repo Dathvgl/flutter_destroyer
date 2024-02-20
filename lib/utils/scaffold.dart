@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_destroyer/cubits/bottomIndexed/bottom_indexed_cubit.dart';
 import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
 import 'package:flutter_destroyer/drawer/index.dart';
 import 'package:flutter_destroyer/extensions/string.dart';
 import 'package:flutter_destroyer/pages/manga/mangaChapter/manga_chapter_end_drawer.dart';
 import 'package:flutter_destroyer/pages/soulLand/components/base.dart';
 import 'package:flutter_destroyer/pages/soulLand/components/soul_land_bottom_navigation.dart';
+import 'package:flutter_destroyer/pages/soulland/vohon.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 Widget _appBarLeading(BuildContext context) {
@@ -25,8 +28,10 @@ Scaffold scaffoldHandle({
   Widget body = child;
 
   bool appbar = true;
+  Color? backgroundColor;
   bool? centerTitle;
   Widget? leading;
+  List<Widget>? actions;
   Widget? endDrawer;
   Widget? bottomNavigationBar;
   FloatingActionButtonLocation? floatingActionButtonLocation;
@@ -83,7 +88,35 @@ Scaffold scaffoldHandle({
   }
 
   if (path.contains("/soulland")) {
-    title = "Idle";
+    final page = context.watch<BottomIndexedCubit>().state.page;
+    final info = soulLandInfos[page];
+
+    title = info["label"] as String;
+
+    centerTitle = true;
+
+    backgroundColor = info["backgroundColor"] as Color;
+
+    if (page == 1) {
+      actions = [
+        Padding(
+          padding: const EdgeInsets.only(
+            right: 10.0,
+          ),
+          child: IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => const HuongDanVoHon(),
+              );
+            },
+            icon: const FaIcon(
+              FontAwesomeIcons.circleQuestion,
+            ),
+          ),
+        )
+      ];
+    }
 
     bottomNavigationBar = const SoulLandBottomNavigation();
 
@@ -99,6 +132,8 @@ Scaffold scaffoldHandle({
             title: Text(title),
             centerTitle: centerTitle,
             leading: leading,
+            backgroundColor: backgroundColor,
+            actions: actions,
             shape: Border(
               bottom: BorderSide(
                 color: Theme.of(context).colorScheme.secondary,

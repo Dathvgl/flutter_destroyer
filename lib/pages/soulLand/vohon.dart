@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_destroyer/models/soulland/tutiens.dart';
 import 'package:flutter_destroyer/models/soulland/vohons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 class VoHonPage extends StatefulWidget {
@@ -16,59 +15,27 @@ class _VoHonPageState extends State<VoHonPage> {
     context.read<TuTien>().updateVoHon(index);
   }
 
-  void customDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => const HuongDanVoHon(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Võ Hồn',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.cyan,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(
-              right: 10.0,
-            ),
-            child: IconButton(
-              onPressed: customDialog,
-              icon: const FaIcon(
-                FontAwesomeIcons.circleQuestion,
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+              ),
+              child: ThuVoHon(
+                vohon: context.watch<TuTien>().vohon,
               ),
             ),
-          )
-        ],
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0,
-                ),
-                child: ThuVoHon(
-                  vohon: context.watch<TuTien>().vohon,
-                ),
-              ),
-              const SizedBox(
-                height: 30.0,
-              ),
-              ThucTinhVoHon(
-                callback: taovohon,
-              ),
-            ],
-          ),
+            const SizedBox(
+              height: 30.0,
+            ),
+            ThucTinhVoHon(
+              callback: taovohon,
+            ),
+          ],
         ),
       ),
     );

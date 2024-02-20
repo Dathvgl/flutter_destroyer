@@ -75,95 +75,83 @@ class _TuLuyenPageState extends State<TuLuyenPage> {
     HonLuc honluc = context.watch<TuTien>().honluc;
     TinhThanLuc tinhthanluc = context.watch<TuTien>().tinhthanluc;
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Tu Luyện',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+    return Center(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 30.0,
           ),
-        ),
-        backgroundColor: Colors.blue,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 30.0,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/honSu/meditation.png',
-                  width: 250.0,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/honSu/meditation.png',
+                width: 250.0,
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              Center(
+                child: Text(
+                  context.read<TuTien>().honsu,
+                  style: const TextStyle(
+                    fontSize: 40.0,
+                  ),
                 ),
-                const SizedBox(
-                  height: 10.0,
+              ),
+              const SizedBox(
+                height: 20.0,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
                 ),
-                Center(
-                  child: Text(
-                    context.read<TuTien>().honsu,
-                    style: const TextStyle(
-                      fontSize: 40.0,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CapTuLuyen(
+                      exp: honluc.honluc,
+                      name: context.read<TuTien>().honluc.tangcap,
                     ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20.0,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CapTuLuyen(
-                        exp: honluc.honluc,
-                        name: context.read<TuTien>().honluc.tangcap,
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      Center(
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 35.0,
-                          child: PercentProgressBar(
-                            textSize: 20.0,
-                            progress: tuHonLuc(honluc.honkhi),
-                          ),
+                    const SizedBox(
+                      height: 10.0,
+                    ),
+                    Center(
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 35.0,
+                        child: PercentProgressBar(
+                          textSize: 20.0,
+                          progress: tuHonLuc(honluc.honkhi),
                         ),
                       ),
-                      const SizedBox(
-                        height: 30.0,
-                      ),
-                      CapTuLuyen(
-                        exp: tinhthanluc.tinhthanluc,
-                        name: context.read<TuTien>().tinhthanluc.tangcap,
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      Center(
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 35.0,
-                          child: ThanhTuLuyen(
-                            color: TinhThanLuc.honsuMau[TinhThanLuc.capdo],
-                            progress: tuTinhThanLuc(tinhthanluc.honkhi),
-                            backColor: Colors.blue,
-                          ),
+                    ),
+                    const SizedBox(
+                      height: 30.0,
+                    ),
+                    CapTuLuyen(
+                      exp: tinhthanluc.tinhthanluc,
+                      name: context.read<TuTien>().tinhthanluc.tangcap,
+                    ),
+                    const SizedBox(
+                      height: 10.0,
+                    ),
+                    Center(
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 35.0,
+                        child: ThanhTuLuyen(
+                          color: TinhThanLuc.honsuMau[TinhThanLuc.capdo],
+                          progress: tuTinhThanLuc(tinhthanluc.honkhi),
+                          backColor: Colors.blue,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

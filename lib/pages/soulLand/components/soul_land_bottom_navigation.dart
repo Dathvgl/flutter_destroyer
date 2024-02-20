@@ -30,6 +30,13 @@ final _itemPages = <BottomNavigationBarItem>[
   // ),
 ];
 
+final soulLandInfos = _itemPages.map((item) {
+  return {
+    "label": item.label,
+    "backgroundColor": item.backgroundColor,
+  };
+}).toList();
+
 class SoulLandBottomNavigation extends StatelessWidget {
   const SoulLandBottomNavigation({super.key});
 

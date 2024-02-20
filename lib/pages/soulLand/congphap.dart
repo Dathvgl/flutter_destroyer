@@ -33,46 +33,34 @@ class _CongPhapPageState extends State<CongPhapPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Công Pháp',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.green,
-      ),
-      body: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Expanded(
-            child: ListView(
-              controller: ScrollController(),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16.0,
-                  ),
-                  child: Center(
-                    child: Text(
-                      context.read<TuTien>().congphap.bophap,
-                      style: const TextStyle(
-                        fontSize: 30.0,
-                        color: Colors.deepPurpleAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Expanded(
+          child: ListView(
+            controller: ScrollController(),
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16.0,
+                ),
+                child: Center(
+                  child: Text(
+                    context.read<TuTien>().congphap.bophap,
+                    style: const TextStyle(
+                      fontSize: 30.0,
+                      color: Colors.deepPurpleAccent,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                const Divider(),
-                ...listTiles(),
-              ],
-            ),
+              ),
+              const Divider(),
+              ...listTiles(),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

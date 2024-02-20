@@ -46,26 +46,26 @@ class _HonHoanPageState extends State<HonHoanPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Hồn Hoàn',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+    return Stack(
+      children: [
+        ListView(
+          controller: ScrollController(),
+          children: [
+            ...honhoans,
+          ],
+        ),
+        Positioned(
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: LuaChonHonHoan(
+                callback: taohonhoan,
+              ),
+            ),
           ),
         ),
-        backgroundColor: Colors.indigo,
-      ),
-      body: ListView(
-        controller: ScrollController(),
-        children: [
-          ...honhoans,
-        ],
-      ),
-      floatingActionButton: LuaChonHonHoan(
-        callback: taohonhoan,
-      ),
+      ],
     );
   }
 }

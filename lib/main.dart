@@ -12,6 +12,7 @@ import 'package:flutter_destroyer/cubits/theme/theme_cubit.dart';
 import 'package:flutter_destroyer/cubits/user/user_cubit.dart';
 import 'package:flutter_destroyer/firebase_options.dart';
 import 'package:flutter_destroyer/models/fetch_handle.dart';
+import 'package:flutter_destroyer/models/soulland/tutiens.dart';
 import 'package:flutter_destroyer/models/tuTien/tu_tien.dart';
 import 'package:flutter_destroyer/pages/auth_page.dart';
 import 'package:flutter_destroyer/pages/calculator/page.dart';
@@ -25,6 +26,7 @@ import 'package:flutter_destroyer/repositories/auth_repository.dart';
 import 'package:flutter_destroyer/repositories/user_repository.dart';
 import 'package:flutter_destroyer/utils/scaffold.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 /* 
 flutter run --web-port 3000
@@ -185,6 +187,13 @@ class MyApp extends StatelessWidget {
             );
           }),
           BlocProvider(create: (context) => MangaCubit()),
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider(
+                create: (_) => TuTien(),
+              ),
+            ],
+          ),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, state) {
