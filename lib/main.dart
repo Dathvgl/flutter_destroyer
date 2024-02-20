@@ -4,29 +4,31 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_destroyer/blocs/auth/auth_bloc.dart';
-import 'package:flutter_destroyer/blocs/user/user_bloc.dart';
 import 'package:flutter_destroyer/cubits/bottomIndexed/bottom_indexed_cubit.dart';
 import 'package:flutter_destroyer/cubits/calculator/calculator_cubit.dart';
 import 'package:flutter_destroyer/cubits/cultivation/cultivation_cubit.dart';
-import 'package:flutter_destroyer/cubits/mangaType/manga_type_cubit.dart';
+import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
 import 'package:flutter_destroyer/cubits/theme/theme_cubit.dart';
-import 'package:flutter_destroyer/cubits/userCultivation/user_cultivation_cubit.dart';
-import 'package:flutter_destroyer/drawer/index.dart';
+import 'package:flutter_destroyer/cubits/user/user_cubit.dart';
 import 'package:flutter_destroyer/firebase_options.dart';
+import 'package:flutter_destroyer/models/fetch_handle.dart';
 import 'package:flutter_destroyer/models/tuTien/tu_tien.dart';
 import 'package:flutter_destroyer/pages/auth_page.dart';
 import 'package:flutter_destroyer/pages/calculator/page.dart';
 import 'package:flutter_destroyer/pages/home/page.dart';
-import 'package:flutter_destroyer/pages/manga/mangaChapter/manga_chapter_page.dart';
+import 'package:flutter_destroyer/pages/manga/mangaChapter/page.dart';
 import 'package:flutter_destroyer/pages/manga/mangaDetail/page.dart';
 import 'package:flutter_destroyer/pages/manga/page.dart';
 import 'package:flutter_destroyer/pages/setting_page.dart';
 import 'package:flutter_destroyer/pages/soulLand/components/soul_land_body.dart';
-import 'package:flutter_destroyer/resources/auth_repository.dart';
-import 'package:flutter_destroyer/resources/user_repository.dart';
+import 'package:flutter_destroyer/repositories/auth_repository.dart';
+import 'package:flutter_destroyer/repositories/user_repository.dart';
 import 'package:flutter_destroyer/utils/scaffold.dart';
 import 'package:go_router/go_router.dart';
+
+/* 
+flutter run --web-port 3000
+ */
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +41,8 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await FetchHandle().cookie();
 
   // runApp(
   //   FutureBuilder(
@@ -81,25 +85,11 @@ final _router = GoRouter(
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
-        final path = state.fullPath;
-
-        if (path != null) {
-          return scaffoldHandle(context, child, path);
-        }
-
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text("Trang chủ"),
-            shape: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ),
-          ),
-          drawer: const DrawerRoot(),
-          body: SafeArea(
-            child: child,
-          ),
+        return scaffoldHandle(
+          context: context,
+          child: child,
+          path: state.fullPath ?? "/",
+          param: state.pathParameters,
         );
       },
       routes: [
@@ -168,8 +158,6 @@ class MyApp extends StatelessWidget {
     required this.tuTiens,
   });
 
-  // final _router = GoRouterDart.router;
-
   final _authRepository = AuthRepository();
   final _userRepository = UserRepository();
 
@@ -186,21 +174,17 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(create: (context) => ThemeCubit()),
           BlocProvider(create: (context) => BottomIndexedCubit()),
-          BlocProvider(create: (context) => CultivationCubit(tuTiens: tuTiens)),
-          BlocProvider(create: (context) => MangaTypeCubit()),
           BlocProvider(create: (context) {
-            return AuthBloc(authRepository: _authRepository);
-          }),
-          BlocProvider(create: (context) => UserBloc()),
-          BlocProvider(create: (context) {
-            return UserCultivationCubit(
-              authRepository: _authRepository,
+            return UserCubit(
               userRepository: _userRepository,
             );
           }),
-          // ChangeNotifierProvider(
-          //   create: (_) => TuTien(),
-          // )
+          BlocProvider(create: (context) {
+            return CultivationCubit(
+              tuTiens: tuTiens,
+            );
+          }),
+          BlocProvider(create: (context) => MangaCubit()),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, state) {
