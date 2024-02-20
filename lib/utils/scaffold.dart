@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
 import 'package:flutter_destroyer/drawer/index.dart';
+import 'package:flutter_destroyer/extensions/string.dart';
+import 'package:flutter_destroyer/pages/manga/mangaChapter/manga_chapter_end_drawer.dart';
 import 'package:flutter_destroyer/pages/soulLand/components/base.dart';
 import 'package:flutter_destroyer/pages/soulLand/components/soul_land_bottom_navigation.dart';
 import 'package:go_router/go_router.dart';
@@ -11,9 +15,16 @@ Widget _appBarLeading(BuildContext context) {
   );
 }
 
-Scaffold scaffoldHandle(BuildContext context, Widget child, String path) {
+Scaffold scaffoldHandle({
+  required BuildContext context,
+  required Widget child,
+  required String path,
+  Map<String, dynamic> param = const {},
+}) {
   String title = "Trang chủ";
+  Widget body = child;
 
+  bool appbar = true;
   bool? centerTitle;
   Widget? leading;
   Widget? endDrawer;
@@ -40,24 +51,34 @@ Scaffold scaffoldHandle(BuildContext context, Widget child, String path) {
   }
 
   if (path.contains("/manga")) {
+    body = BlocListener<MangaCubit, MangaState>(
+      listenWhen: (previous, current) {
+        return previous.type.name != current.type.name;
+      },
+      listener: (context, state) {
+        Navigator.of(context).popUntil(ModalRoute.withName("/manga"));
+      },
+      child: child,
+    );
+
     if (path == "/manga") {
-      title = "Truyện tranh";
+      title = context.read<MangaCubit>().state.type.name.toCapitalized();
     }
 
     if (path.contains("/detail")) {
+      // need real title
       title = "Truyện tranh chi tiết";
 
       leading = _appBarLeading(context);
     }
 
     if (path.contains("/chapter")) {
-      title = "Truyện tranh chương";
+      appbar = false;
 
-      // endDrawer = MangaChapterEndDrawer(
-      //   detailId: detailId!,
-      //   chapterId: chapterId!,
-      //   chapters: model.chapters,
-      // );
+      endDrawer = MangaChapterEndDrawer(
+        detailId: param["detailId"],
+        chapterId: param["chapterId"],
+      );
     }
   }
 
@@ -72,23 +93,25 @@ Scaffold scaffoldHandle(BuildContext context, Widget child, String path) {
   }
 
   return Scaffold(
-    appBar: AppBar(
-      title: Text(title),
-      centerTitle: centerTitle,
-      leading: leading,
-      shape: Border(
-        bottom: BorderSide(
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-      ),
-    ),
+    appBar: appbar == false
+        ? null
+        : AppBar(
+            title: Text(title),
+            centerTitle: centerTitle,
+            leading: leading,
+            shape: Border(
+              bottom: BorderSide(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          ),
     drawer: const DrawerRoot(),
     endDrawer: endDrawer,
     bottomNavigationBar: bottomNavigationBar,
     floatingActionButtonLocation: floatingActionButtonLocation,
     floatingActionButton: floatingActionButton,
     body: SafeArea(
-      child: child,
+      child: body,
     ),
   );
 }
