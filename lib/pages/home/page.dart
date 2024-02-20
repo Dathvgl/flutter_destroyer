@@ -7,15 +7,20 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      children: routes.sublist(1).map((item) {
-        return TextButton(
-          onPressed: () {
-            context.push(item.path);
-          },
-          child: Text(item.name),
-        );
-      }).toList(),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: routes.sublist(1).map((item) {
+          return TextButton(
+            onPressed: () {
+              context.push(item.path);
+            },
+            child: Text(item.name),
+          );
+        }).toList(),
+      ),
     );
   }
 }

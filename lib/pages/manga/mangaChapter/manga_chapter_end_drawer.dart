@@ -1,45 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_destroyer/blocs/user/user_bloc.dart';
+import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
 import 'package:flutter_destroyer/cubits/theme/theme_cubit.dart';
 import 'package:flutter_destroyer/extensions/double.dart';
-import 'package:flutter_destroyer/models/manga/manga_chapter_image.dart';
-import 'package:flutter_destroyer/models/user/user_follow_manga.dart';
+import 'package:flutter_destroyer/models/manga/manga_chapter.dart';
+import 'package:flutter_destroyer/models/manga/manga_user_follow.dart';
+import 'package:flutter_destroyer/utils/await_builder.dart';
 import 'package:go_router/go_router.dart';
 
 class MangaChapterEndDrawer extends StatelessWidget {
   final String detailId;
   final String chapterId;
-  final List<MangaChapterDetailModel> chapters;
 
   const MangaChapterEndDrawer({
     super.key,
     required this.detailId,
     required this.chapterId,
-    required this.chapters,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      widthFactor: 0.5,
-      heightFactor: 1,
-      child: BlocBuilder<UserBloc, UserState>(
-        builder: (context, userState) {
-          UserFollowMangaModel? follow;
-
-          if (userState.runtimeType == UserFollowMangaState) {
-            final model = (userState as UserFollowMangaState).model;
-            follow = model.id.isEmpty ? null : model;
-          }
-
-          return MangaChapterEndDrawerItem(
-            detailId: detailId,
-            chapterId: chapterId,
-            follow: follow,
-            chapters: chapters,
-          );
-        },
+    return Drawer(
+      child: SafeArea(
+        child: awaitFuture(
+          future: context.read<MangaCubit>().getMangaChapter(id: detailId),
+          done: (context, data) {
+            return MangaChapterEndDrawerItem(
+              detailId: detailId,
+              chapterId: chapterId,
+              chapters: data,
+            );
+          },
+        ),
       ),
     );
   }
@@ -48,8 +40,8 @@ class MangaChapterEndDrawer extends StatelessWidget {
 class MangaChapterEndDrawerItem extends StatelessWidget {
   final String detailId;
   final String chapterId;
-  final UserFollowMangaModel? follow;
-  final List<MangaChapterDetailModel> chapters;
+  final MangaUserFollow? follow;
+  final List<MangaChapterModel> chapters;
 
   const MangaChapterEndDrawerItem({
     super.key,
@@ -71,7 +63,7 @@ class MangaChapterEndDrawerItem extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Chapter list",
+                  "Danh sách",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

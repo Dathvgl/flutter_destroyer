@@ -1,21 +1,22 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_destroyer/blocs/user/user_bloc.dart';
-import 'package:flutter_destroyer/components/image.dart';
-import 'package:flutter_destroyer/cubits/userCultivation/user_cultivation_cubit.dart';
+import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
+import 'package:flutter_destroyer/cubits/theme/theme_cubit.dart';
+import 'package:flutter_destroyer/cubits/user/user_cubit.dart';
 import 'package:flutter_destroyer/extensions/double.dart';
 import 'package:flutter_destroyer/models/manga/manga_chapter_image.dart';
-import 'package:flutter_destroyer/models/user/user_follow_manga.dart';
+import 'package:flutter_destroyer/models/manga/manga_user_follow.dart';
 import 'package:go_router/go_router.dart';
 
 class MangaChapterItem extends StatefulWidget {
   final String detailId;
-  final MangaChapterImageModel model;
+  final MangaChapterImageModel data;
 
   const MangaChapterItem({
     super.key,
     required this.detailId,
-    required this.model,
+    required this.data,
   });
 
   @override
@@ -34,6 +35,7 @@ class _MangaChapterItemState extends State<MangaChapterItem> {
   @override
   void initState() {
     super.initState();
+
     _controller.addListener(() {
       final scrollOffset = _controller.offset;
       final maxScrollHeight = _controller.position.maxScrollExtent;
@@ -51,14 +53,17 @@ class _MangaChapterItemState extends State<MangaChapterItem> {
       }
     });
 
-    final state = context.read<UserCultivationCubit>().state;
-    context.read<UserCultivationCubit>().update(
-          idCanhGioi: state.cultivation.idCanhGioi,
-          tuVi: state.cultivation.tuVi,
-          tuViTheo: 1,
-        );
+    final cubit = context.read<UserCubit>();
 
-    _images = widget.model.current?.chapters ?? [];
+    if (cubit.state.cultivation != null) {
+      cubit.updateCultivation(
+        idCanhGioi: cubit.state.cultivation!.idCanhGioi,
+        tuVi: cubit.state.cultivation!.tuVi,
+        tuViTheo: 1,
+      );
+    }
+
+    _images = widget.data.current?.chapters ?? [];
   }
 
   @override
@@ -70,91 +75,98 @@ class _MangaChapterItemState extends State<MangaChapterItem> {
 
   Widget header({
     required String detailId,
-    required MangaChapterImageModel model,
+    required MangaChapterImageModel data,
   }) {
     return Positioned(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        width: double.infinity,
-        height: _heightBar,
-        color: Theme.of(context).colorScheme.inversePrimary,
-        child: Row(
-          children: [
-            InkWell(
-              onTap: () => context.pop(),
-              child: const Icon(Icons.arrow_back),
-            ),
-            const SizedBox(width: 32),
-            Expanded(
-              child: Text(
-                model.current?.chapter.chapterManga(true) ??
-                    "Chapter not found",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 22,
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, state) {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: _heightBar,
+            color: state.theme ? Colors.black : Colors.white,
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: () => context.pop(),
+                  child: const Icon(Icons.arrow_back),
                 ),
-              ),
+                const SizedBox(width: 32),
+                Expanded(
+                  child: Text(
+                    data.current?.chapter.chapterManga(true) ??
+                        "Chapter không có",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 22,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 32),
+                InkWell(
+                  onTap: () =>
+                      context.pushReplacement("/manga/detail/$detailId"),
+                  child: const Icon(Icons.info),
+                ),
+                const SizedBox(width: 16),
+                InkWell(
+                  onTap: () => Scaffold.of(context).openEndDrawer(),
+                  child: const Icon(Icons.list),
+                ),
+              ],
             ),
-            const SizedBox(width: 32),
-            InkWell(
-              onTap: () => context.pushReplacement("/manga/detail/$detailId"),
-              child: const Icon(Icons.info),
-            ),
-            const SizedBox(width: 16),
-            InkWell(
-              onTap: () => Scaffold.of(context).openEndDrawer(),
-              child: const Icon(Icons.list),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
   Widget footer({
-    UserFollowMangaModel? follow,
+    MangaUserFollow? follow,
     required String detailId,
-    required MangaChapterImageModel model,
+    required MangaChapterImageModel data,
   }) {
     return Positioned(
       child: Align(
         alignment: Alignment.bottomCenter,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          width: double.infinity,
-          height: _heightBar,
-          color: Theme.of(context).colorScheme.inversePrimary,
-          child: Row(
-            children: [
-              TextButton(
-                onPressed: model.canPrev == null
-                    ? null
-                    : () => context.pushReplacement(
-                        "/manga/chapter/$detailId/${model.canPrev?.id}"),
-                child: const Text(
-                  "Prev",
-                  style: TextStyle(
-                    fontSize: 18,
+        child: BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (context, state) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              height: _heightBar,
+              color: state.theme ? Colors.black : Colors.white,
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: data.canPrev == null
+                        ? null
+                        : () => context.pushReplacement(
+                            "/manga/chapter/$detailId/${data.canPrev?.id}"),
+                    child: const Text(
+                      "Chapter trước",
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              TextButton(
-                onPressed: model.canNext == null
-                    ? null
-                    : () => context.pushReplacement(
-                        "/manga/chapter/$detailId/${model.canNext?.id}"),
-                child: const Text(
-                  "Next",
-                  style: TextStyle(
-                    fontSize: 18,
+                  const SizedBox(width: 16),
+                  TextButton(
+                    onPressed: data.canNext == null
+                        ? null
+                        : () => context.pushReplacement(
+                            "/manga/chapter/$detailId/${data.canNext?.id}"),
+                    child: const Text(
+                      "Chapter sau",
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 16),
+                ],
               ),
-              const SizedBox(width: 16),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -166,48 +178,41 @@ class _MangaChapterItemState extends State<MangaChapterItem> {
       height: double.maxFinite,
       child: Stack(
         children: [
-          InteractiveViewer(
-            child: GestureDetector(
-              onTap: () {
-                if (!_scroll.value) {
-                  _visible.value = !_visible.value;
-                }
-              },
-              child: ListView.builder(
-                controller: _controller,
-                itemCount: _images.length,
-                itemBuilder: (context, index) {
-                  final item = _images[index];
-
-                  if (index == 0) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(height: AppBar().preferredSize.height),
-                        ImageAutoHeight(
-                          url: item.src,
-                        ),
-                      ],
+          GestureDetector(
+            onTap: () {
+              if (!_scroll.value) {
+                _visible.value = !_visible.value;
+              }
+            },
+            child: ListView(
+              controller: _controller,
+              children: [
+                SizedBox(
+                  height: AppBar().preferredSize.height,
+                ),
+                ..._images.map(
+                  (item) {
+                    return CachedNetworkImage(
+                      imageUrl: item.src,
+                      progressIndicatorBuilder:
+                          (context, url, downloadProgress) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: downloadProgress.progress,
+                          ),
+                        );
+                      },
+                      errorWidget: (context, url, error) => Container(
+                        height: 50,
+                        color: Colors.red.shade800,
+                      ),
                     );
-                  }
-
-                  if (index == _images.length - 1) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ImageAutoHeight(
-                          url: item.src,
-                        ),
-                        SizedBox(height: AppBar().preferredSize.height),
-                      ],
-                    );
-                  }
-
-                  return ImageAutoHeight(
-                    url: item.src,
-                  );
-                },
-              ),
+                  },
+                ),
+                SizedBox(
+                  height: AppBar().preferredSize.height,
+                ),
+              ],
             ),
           ),
           ValueListenableBuilder(
@@ -217,7 +222,7 @@ class _MangaChapterItemState extends State<MangaChapterItem> {
                 visible: value,
                 child: header(
                   detailId: widget.detailId,
-                  model: widget.model,
+                  data: widget.data,
                 ),
               );
             },
@@ -225,21 +230,14 @@ class _MangaChapterItemState extends State<MangaChapterItem> {
           ValueListenableBuilder(
             valueListenable: _visible,
             builder: (BuildContext context, value, Widget? child) {
-              return BlocBuilder<UserBloc, UserState>(
+              return BlocBuilder<MangaCubit, MangaState>(
                 builder: (context, state) {
-                  UserFollowMangaModel? follow;
-
-                  if (state.runtimeType == UserFollowMangaState) {
-                    final model = (state as UserFollowMangaState).model;
-                    follow = model.id.isEmpty ? null : model;
-                  }
-
                   return Visibility(
                     visible: value,
                     child: footer(
                       detailId: widget.detailId,
-                      model: widget.model,
-                      follow: follow,
+                      data: widget.data,
+                      follow: state.userFollow,
                     ),
                   );
                 },

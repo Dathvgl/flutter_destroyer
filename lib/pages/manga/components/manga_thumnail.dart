@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_destroyer/blocs/manga/manga_bloc.dart';
 import 'package:flutter_destroyer/components/shimmer.dart';
-import 'package:flutter_destroyer/cubits/mangaType/manga_type_cubit.dart';
+import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
 import 'package:flutter_destroyer/models/manga/manga_thumnail.dart';
+import 'package:flutter_destroyer/utils/await_builder.dart';
 
 class MangaThumnail extends StatelessWidget {
   final String id;
@@ -22,36 +22,23 @@ class MangaThumnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MangaTypeCubit, MangaTypeState>(
-      builder: (context, state) {
-        return BlocProvider(
-          create: (context) => MangaBloc()
-            ..add(GetMangaThumnail(
-              id: id,
-              type: state.type,
-            )),
-          child: BlocBuilder<MangaBloc, MangaState>(
-            builder: (context, state) {
-              switch (state.runtimeType) {
-                case == MangaThumnailLoaded:
-                  final model = (state as MangaThumnailLoaded).model;
-                  return MangaThumnailDetail(
-                    height: height,
-                    fit: fit,
-                    model: model,
-                  );
-                case == MangaInitial:
-                case == MangaLoading:
-                default:
-                  return SizedBox(
-                    height: height,
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-              }
-            },
-          ),
+    return awaitFuture(
+      future: context.read<MangaCubit>().getMangaThumnail(id: id),
+      wait: SizedBox(
+        height: height,
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      done: (context, data) {
+        if (data == null) {
+          return const SizedBox();
+        }
+
+        return MangaThumnailDetail(
+          height: height,
+          fit: fit,
+          data: data,
         );
       },
     );
@@ -61,13 +48,13 @@ class MangaThumnail extends StatelessWidget {
 class MangaThumnailDetail extends StatefulWidget {
   final double? height;
   final BoxFit? fit;
-  final MangaThumnailModel model;
+  final MangaThumnailModel data;
 
   const MangaThumnailDetail({
     super.key,
     this.height,
     this.fit,
-    required this.model,
+    required this.data,
   });
 
   @override
@@ -85,7 +72,7 @@ class _MangaThumnailDetailState extends State<MangaThumnailDetail> {
 
   Future<Size> _imageSize() async {
     Completer<Size> completer = Completer();
-    Image provider = Image(image: CachedNetworkImageProvider(widget.model.src));
+    Image provider = Image(image: CachedNetworkImageProvider(widget.data.src));
 
     provider.image.resolve(const ImageConfiguration()).addListener(
       ImageStreamListener(
@@ -122,7 +109,7 @@ class _MangaThumnailDetailState extends State<MangaThumnailDetail> {
   Widget _detailThumnail(Size? size) {
     return CachedNetworkImage(
       height: widget.height,
-      imageUrl: widget.model.src,
+      imageUrl: widget.data.src,
       imageBuilder: (context, imageProvider) {
         final child = _detailWidget(imageProvider);
 

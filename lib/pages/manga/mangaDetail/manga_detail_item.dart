@@ -1,20 +1,19 @@
 import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_destroyer/blocs/user/user_bloc.dart';
+import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
 import 'package:flutter_destroyer/extensions/int.dart';
 import 'package:flutter_destroyer/models/manga/manga_detail.dart';
-import 'package:flutter_destroyer/models/user/user_follow_manga.dart';
 import 'package:flutter_destroyer/pages/manga/components/manga_thumnail.dart';
-import 'package:flutter_destroyer/pages/manga/mangaDetail/manga_detail_build.dart';
 import 'package:flutter_destroyer/pages/manga/mangaDetail/manga_detail_follow.dart';
 import 'package:flutter_destroyer/pages/manga/mangaDetail/manga_detail_tab.dart';
+import 'package:flutter_destroyer/pages/manga/mangaDetail/page.dart';
 import 'package:go_router/go_router.dart';
 
 class MangaDetailItem extends StatelessWidget {
   const MangaDetailItem({super.key});
 
-  List<Widget> info(String mangaId, MangaDetailModel model) {
+  List<Widget> info(String mangaId, MangaDetailModel data) {
     return [
       Padding(
         padding: const EdgeInsets.symmetric(
@@ -24,7 +23,7 @@ class MangaDetailItem extends StatelessWidget {
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            model.title,
+            data.title,
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -45,7 +44,7 @@ class MangaDetailItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: MangaThumnail(
-                    id: model.id,
+                    id: data.id,
                     fit: BoxFit.fitWidth,
                   ),
                 ),
@@ -57,14 +56,14 @@ class MangaDetailItem extends StatelessWidget {
                   child: Wrap(
                     runSpacing: 12,
                     children: [
-                      if (model.altTitle != null) ...[
+                      if (data.altTitle != null) ...[
                         Row(
                           children: [
                             const Icon(Icons.auto_stories),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                "${model.altTitle}\n",
+                                "${data.altTitle}\n",
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -72,14 +71,14 @@ class MangaDetailItem extends StatelessWidget {
                           ],
                         ),
                       ],
-                      if (model.authors.isNotEmpty) ...[
+                      if (data.authors.isNotEmpty) ...[
                         Row(
                           children: [
                             const Icon(Icons.person),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                model.authors.map((e) => e.name).join(", "),
+                                data.authors.map((e) => e.name).join(", "),
                               ),
                             ),
                           ],
@@ -89,21 +88,21 @@ class MangaDetailItem extends StatelessWidget {
                         children: [
                           const Icon(Icons.menu_book),
                           const SizedBox(width: 12),
-                          Text(model.status),
+                          Text(data.status),
                         ],
                       ),
                       Row(
                         children: [
                           const Icon(Icons.screenshot_monitor),
                           const SizedBox(width: 12),
-                          Text(model.watched.humanCompact()),
+                          Text(data.watched.humanCompact()),
                         ],
                       ),
                       Row(
                         children: [
                           const Icon(Icons.check_circle),
                           const SizedBox(width: 12),
-                          Text(model.followed.humanCompact()),
+                          Text(data.followed.humanCompact()),
                         ],
                       ),
                     ],
@@ -121,7 +120,7 @@ class MangaDetailItem extends StatelessWidget {
         ),
         child: Wrap(
           spacing: 8,
-          children: model.tags.map((e) {
+          children: data.tags.map((e) {
             return ActionChip(
               label: Text(e.name),
               labelPadding: const EdgeInsets.symmetric(
@@ -151,7 +150,7 @@ class MangaDetailItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
-                    "Read first",
+                    "Đọc từ đầu",
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -171,7 +170,7 @@ class MangaDetailItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
-                    "Read last",
+                    "Đọc mới nhất",
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -180,40 +179,36 @@ class MangaDetailItem extends StatelessWidget {
                 ),
               ),
               const MangaDetailFollow(),
-              BlocBuilder<UserBloc, UserState>(
-                builder: (context, userState) {
-                  UserFollowMangaModel? follow;
-
-                  if (userState.runtimeType == UserFollowMangaState) {
-                    final model = (userState as UserFollowMangaState).model;
-                    follow = model.id.isEmpty ? null : model;
+              BlocBuilder<MangaCubit, MangaState>(
+                buildWhen: (previous, current) {
+                  return previous.userFollow != current.userFollow;
+                },
+                builder: (context, state) {
+                  if (state.userFollow == null) {
+                    return const SizedBox();
                   }
 
-                  if (follow == null) {
-                    return const SizedBox();
-                  } else {
-                    return InkWell(
-                      onTap: () => context.push(
-                          "/manga/chapter/$mangaId/${follow?.currentChapterId}"),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.amber,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          "Continue",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  return InkWell(
+                    onTap: () => context.push(
+                        "/manga/chapter/$mangaId/${state.userFollow?.currentChapterId}"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        "Continue",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    );
-                  }
+                    ),
+                  );
                 },
               ),
             ],
@@ -225,12 +220,11 @@ class MangaDetailItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inherited = MangaDetailBuildInherited.of(context) ??
-        MangaDetailBuildInherited(
-          id: "",
-          model: MangaDetailModel.empty(),
-          child: const SizedBox(),
-        );
+    final inherited = MangaDetailInherited.of(context);
+
+    if (inherited == null) {
+      return const SizedBox();
+    }
 
     return DefaultTabController(
       length: 2,
@@ -240,7 +234,7 @@ class MangaDetailItem extends StatelessWidget {
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  ...info(inherited.id, inherited.model),
+                  ...info(inherited.id, inherited.data),
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),

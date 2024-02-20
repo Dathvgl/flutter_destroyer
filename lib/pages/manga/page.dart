@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_destroyer/blocs/manga/manga_bloc.dart';
 import 'package:flutter_destroyer/components/shimmer.dart';
-import 'package:flutter_destroyer/cubits/mangaType/manga_type_cubit.dart';
+import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
 import 'package:flutter_destroyer/extensions/double.dart';
 import 'package:flutter_destroyer/extensions/int.dart';
 import 'package:flutter_destroyer/models/manga/manga_list.dart';
 import 'package:flutter_destroyer/pages/manga/components/manga_dialog.dart';
 import 'package:flutter_destroyer/pages/manga/components/manga_thumnail.dart';
+import 'package:flutter_destroyer/utils/await_builder.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,46 +16,35 @@ class MangaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MangaTypeCubit, MangaTypeState>(
-      builder: (context, state) {
-        return BlocProvider(
-          create: (context) => MangaBloc()
-            ..add(GetMangaList(
-              type: state.type,
-            )),
-          child: BlocBuilder<MangaBloc, MangaState>(
-            builder: (context, state) {
-              switch (state.runtimeType) {
-                case == MangaListLoaded:
-                  return MangaList(
-                    model: (state as MangaListLoaded).model,
-                  );
-                case == MangaInitial:
-                case == MangaLoading:
-                default:
-                  return AlignedGridView.count(
-                    padding: const EdgeInsets.all(20),
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 16,
-                    crossAxisCount: 2,
-                    itemCount: 10,
-                    itemBuilder: (context, index) {
-                      return const CustomShimmer(
-                        child: Column(
-                          children: [
-                            CustomShimmerBox(),
-                            SizedBox(height: 10),
-                            CustomShimmerLine(),
-                            SizedBox(height: 10),
-                            CustomShimmerLine(),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-              }
-            },
-          ),
+    return awaitFuture(
+      future: context.read<MangaCubit>().getMangaList(),
+      wait: AlignedGridView.count(
+        padding: const EdgeInsets.all(20),
+        mainAxisSpacing: 20,
+        crossAxisSpacing: 16,
+        crossAxisCount: 2,
+        itemCount: 10,
+        itemBuilder: (context, index) {
+          return const CustomShimmer(
+            child: Column(
+              children: [
+                CustomShimmerBox(),
+                SizedBox(height: 10),
+                CustomShimmerLine(),
+                SizedBox(height: 10),
+                CustomShimmerLine(),
+              ],
+            ),
+          );
+        },
+      ),
+      done: (context, data) {
+        if (data == null) {
+          return const SizedBox();
+        }
+
+        return MangaList(
+          data: data,
         );
       },
     );
@@ -63,11 +52,11 @@ class MangaPage extends StatelessWidget {
 }
 
 class MangaList extends StatelessWidget {
-  final MangaListModel model;
+  final MangaListModel data;
 
   const MangaList({
     super.key,
-    required this.model,
+    required this.data,
   });
 
   @override
@@ -77,9 +66,9 @@ class MangaList extends StatelessWidget {
       mainAxisSpacing: 20,
       crossAxisSpacing: 16,
       crossAxisCount: 2,
-      itemCount: model.data.length,
+      itemCount: data.data.length,
       itemBuilder: (context, index) {
-        final item = model.data[index];
+        final item = data.data[index];
         return MangaItem(item: item);
       },
     );
@@ -116,7 +105,7 @@ class MangaItem extends StatelessWidget {
                 children: [
                   MangaThumnail(
                     id: item.id,
-                    height: 180,
+                    height: 150,
                     fit: BoxFit.fitWidth,
                   ),
                   Padding(
@@ -166,7 +155,9 @@ class MangaItem extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        e.time.timestampMilli(),
+                        e.time.timestampMilli(full: false),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontStyle: FontStyle.italic,
                         ),

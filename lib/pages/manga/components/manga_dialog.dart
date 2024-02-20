@@ -12,6 +12,7 @@ class MangaDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      contentPadding: const EdgeInsets.all(16),
       content: Container(
         width: MediaQuery.of(context).size.width * 0.8,
         constraints: BoxConstraints(
@@ -45,12 +46,14 @@ class MangaDialog extends StatelessWidget {
                   }).toList(),
                 ),
               ),
-              Text(
-                item.description,
-                style: const TextStyle(
-                  fontSize: 16,
+              if (item.description.isNotEmpty) ...[
+                Text(
+                  item.description,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

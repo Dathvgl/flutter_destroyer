@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_destroyer/blocs/auth/auth_bloc.dart';
-import 'package:flutter_destroyer/enum.dart';
+import 'package:flutter_destroyer/cubits/user/user_cubit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 
@@ -10,9 +9,13 @@ class AuthPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
+    return BlocBuilder<UserCubit, UserState>(
+      buildWhen: (previous, current) {
+        return previous.user != current.user;
+      },
       builder: (context, state) {
-        final authState = state.status == AuthStatus.authenticated;
+        final authState = state.user == null;
+
         return Center(
           child: SingleChildScrollView(
             child: Column(
@@ -21,16 +24,20 @@ class AuthPage extends StatelessWidget {
                 SignInButton(
                   Buttons.google,
                   text: "Đăng nhập bằng Google",
-                  onPressed: authState
-                      ? () => {}
-                      : () => context
-                          .read<AuthBloc>()
-                          .add(AuthGoogle(callback: () => context.pop())),
+                  onPressed: () {
+                    if (authState) {
+                      context
+                          .read<UserCubit>()
+                          .signInGoogle(callback: () => context.pop());
+                    }
+                  },
                 ),
                 TextButton(
-                  onPressed: state.status != AuthStatus.authenticated
-                      ? null
-                      : () => context.read<AuthBloc>().add(AuthOut()),
+                  onPressed: () {
+                    if (authState) {
+                      context.read<UserCubit>().signOut();
+                    }
+                  },
                   child: const Text("Thoát"),
                 ),
               ],

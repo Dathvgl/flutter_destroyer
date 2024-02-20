@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_destroyer/blocs/manga/manga_bloc.dart';
-import 'package:flutter_destroyer/blocs/user/user_bloc.dart';
 import 'package:flutter_destroyer/components/shimmer.dart';
-import 'package:flutter_destroyer/cubits/mangaType/manga_type_cubit.dart';
+import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
 import 'package:flutter_destroyer/extensions/double.dart';
 import 'package:flutter_destroyer/extensions/int.dart';
 import 'package:flutter_destroyer/models/manga/manga_chapter.dart';
-import 'package:flutter_destroyer/models/manga/manga_detail.dart';
-import 'package:flutter_destroyer/models/user/user_follow_manga.dart';
-import 'package:flutter_destroyer/pages/manga/mangaDetail/manga_detail_build.dart';
+import 'package:flutter_destroyer/models/manga/manga_user_follow.dart';
+import 'package:flutter_destroyer/pages/manga/mangaDetail/page.dart';
+import 'package:flutter_destroyer/utils/await_builder.dart';
 import 'package:go_router/go_router.dart';
 
-class MangaDetailItemChapter extends StatefulWidget {
-  const MangaDetailItemChapter({super.key});
+class MangaDetailChapter extends StatefulWidget {
+  const MangaDetailChapter({super.key});
 
   @override
-  State<MangaDetailItemChapter> createState() => _MangaDetailItemChapterState();
+  State<MangaDetailChapter> createState() => _MangaDetailChapterState();
 }
 
-class _MangaDetailItemChapterState extends State<MangaDetailItemChapter>
+class _MangaDetailChapterState extends State<MangaDetailChapter>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
@@ -28,88 +26,51 @@ class _MangaDetailItemChapterState extends State<MangaDetailItemChapter>
   Widget build(BuildContext context) {
     super.build(context);
 
-    final inherited = MangaDetailBuildInherited.of(context) ??
-        MangaDetailBuildInherited(
-          id: "",
-          model: MangaDetailModel.empty(),
-          child: const SizedBox(),
-        );
+    final inherited = MangaDetailInherited.of(context);
 
-    return BlocBuilder<MangaTypeCubit, MangaTypeState>(
-      builder: (context, state) {
-        return BlocProvider(
-          create: (context) => MangaBloc()
-            ..add(GetMangaChapter(
-              id: inherited.id,
-              type: state.type,
-            )),
-          child: BlocBuilder<MangaBloc, MangaState>(
-            builder: (context, state) {
-              switch (state.runtimeType) {
-                case == MangaChapterLoaded:
-                  final model = (state as MangaChapterLoaded).model;
-                  return MangaDetailItemChapterDetail(model: model);
-                case == MangaInitial:
-                case == MangaLoading:
-                default:
-                  return const CustomShimmer(
-                    child: CustomShimmerBox(),
-                  );
-              }
-            },
-          ),
+    if (inherited == null) {
+      return const SizedBox();
+    }
+
+    return awaitFuture(
+      future: context.read<MangaCubit>().getMangaChapter(id: inherited.id),
+      wait: const CustomShimmer(
+        child: CustomShimmerBox(),
+      ),
+      done: (context, data) {
+        return BlocBuilder<MangaCubit, MangaState>(
+          buildWhen: (previous, current) {
+            return previous.userFollow != current.userFollow;
+          },
+          builder: (context, state) {
+            return MangaDetailChapterInfo(
+              follow: state.userFollow,
+              data: data,
+            );
+          },
         );
       },
     );
   }
 }
 
-class MangaDetailItemChapterDetail extends StatelessWidget {
-  final List<MangaChapterModel> model;
+class MangaDetailChapterInfo extends StatelessWidget {
+  final MangaUserFollow? follow;
+  final List<MangaChapterModel> data;
 
-  const MangaDetailItemChapterDetail({
-    super.key,
-    required this.model,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<UserBloc, UserState>(
-      builder: (context, userState) {
-        UserFollowMangaModel? follow;
-
-        if (userState.runtimeType == UserFollowMangaState) {
-          final model = (userState as UserFollowMangaState).model;
-          follow = model.id.isEmpty ? null : model;
-        }
-
-        return MangaDetailItemChapterDetailItem(
-          follow: follow,
-          model: model,
-        );
-      },
-    );
-  }
-}
-
-class MangaDetailItemChapterDetailItem extends StatelessWidget {
-  final UserFollowMangaModel? follow;
-  final List<MangaChapterModel> model;
-
-  const MangaDetailItemChapterDetailItem({
+  const MangaDetailChapterInfo({
     super.key,
     this.follow,
-    required this.model,
+    required this.data,
   });
 
   @override
   Widget build(BuildContext context) {
-    final inherited = MangaDetailBuildInherited.of(context) ??
-        MangaDetailBuildInherited(
-          id: "",
-          model: MangaDetailModel.empty(),
-          child: const SizedBox(),
-        );
+    final inherited = MangaDetailInherited.of(context);
+
+    if (inherited == null) {
+      return const SizedBox();
+    }
 
     return ListView.separated(
       primary: false,
@@ -118,9 +79,9 @@ class MangaDetailItemChapterDetailItem extends StatelessWidget {
         height: 0,
         thickness: 3,
       ),
-      itemCount: model.length,
+      itemCount: data.length,
       itemBuilder: (context, index) {
-        final item = model[index];
+        final item = data[index];
         return Padding(
           padding: const EdgeInsets.all(20),
           child: Row(
