@@ -11,15 +11,6 @@ class MangaChapterImageModel {
     required this.chapters,
   });
 
-  factory MangaChapterImageModel.empty() {
-    return const MangaChapterImageModel(
-      canPrev: null,
-      canNext: null,
-      current: null,
-      chapters: [],
-    );
-  }
-
   factory MangaChapterImageModel.fromJson(Map<String, dynamic> json) {
     return MangaChapterImageModel(
       canPrev: json["canPrev"] == null

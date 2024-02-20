@@ -13,13 +13,6 @@ class UserCultivationModel extends Equatable {
     required this.tuVi,
   });
 
-  const UserCultivationModel.empty({
-    this.idTuLuyen = "",
-    this.idCanhGioi = "",
-    this.xungHo = "Phàm Nhân",
-    this.tuVi = 0,
-  });
-
   factory UserCultivationModel.fromJson(Map<String, dynamic> json) {
     return UserCultivationModel(
       idTuLuyen: json["idTuLuyen"] as String,

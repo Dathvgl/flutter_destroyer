@@ -26,20 +26,6 @@ class MangaDetailModel {
     required this.description,
   });
 
-  factory MangaDetailModel.empty() {
-    return const MangaDetailModel(
-      id: "",
-      title: "",
-      authors: [],
-      status: "",
-      tags: [],
-      watched: 0,
-      followed: 0,
-      lastestUpdated: 0,
-      description: "",
-    );
-  }
-
   factory MangaDetailModel.fromJson(Map<String, dynamic> json) {
     return MangaDetailModel(
       id: json["_id"] as String,

@@ -9,14 +9,6 @@ class MangaThumnailModel {
     required this.src,
   });
 
-  factory MangaThumnailModel.empty() {
-    return const MangaThumnailModel(
-      id: "",
-      detailId: "",
-      src: "",
-    );
-  }
-
   factory MangaThumnailModel.fromJson(Map<String, dynamic> json) {
     return MangaThumnailModel(
       id: json["_id"] as String,

@@ -27,10 +27,13 @@ class TuTienModel {
     required String id,
     required List<TuTienModel> tuTiens,
   }) async {
-    final model = tuTiens.firstWhereOrNull((element) => element.id == id);
-    if (model == null) return null;
+    final data = tuTiens.firstWhereOrNull((item) => item.id == id);
 
-    final json = await rootBundle.loadString(model.path);
+    if (data == null) {
+      return null;
+    }
+
+    final json = await rootBundle.loadString(data.path);
 
     switch (id) {
       case "quocVuongVanTue":
@@ -71,39 +74,39 @@ class TuLuyenCanhGioiModel {
   }
 
   CanhGioiModel? deepRealm(CanhGioiModel? canhGioi) {
-    CanhGioiModel? model = canhGioi;
+    CanhGioiModel? data = canhGioi;
 
     while (true) {
-      if (model?.tieuCanhGioi == null) {
+      if (data?.tieuCanhGioi == null) {
         break;
       } else {
-        model = model?.tieuCanhGioi?.first;
+        data = data?.tieuCanhGioi?.first;
       }
     }
 
-    return model;
+    return data;
   }
 
   CanhGioiModel? nextRealm({
     required int result,
     CanhGioiModel? canhGioi,
   }) {
-    CanhGioiModel? model = canhGioi;
+    CanhGioiModel? data = canhGioi;
 
     while (true) {
-      if (model == null) {
+      if (data == null) {
         break;
       } else {
-        if (model.tuVi > result) {
-          model = deepRealm(get(model.prevId));
+        if (data.tuVi > result) {
+          data = deepRealm(get(data.prevId));
           break;
         } else {
-          model = deepRealm(get(model.nextId));
+          data = deepRealm(get(data.nextId));
         }
       }
     }
 
-    return model;
+    return data;
   }
 
   CanhGioiModel? get(String? name) {
@@ -118,7 +121,7 @@ class TuLuyenCanhGioiModel {
 
       for (var i = 1; i < length; i++) {
         final lastest = model?.tieuCanhGioi
-            ?.firstWhereOrNull((element) => element.id == split[i]);
+            ?.firstWhereOrNull((item) => item.id == split[i]);
 
         if (lastest == null) break;
         model = lastest;
