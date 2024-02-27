@@ -8,11 +8,11 @@ import 'package:flutter_destroyer/cubits/bottomIndexed/bottom_indexed_cubit.dart
 import 'package:flutter_destroyer/cubits/calculator/calculator_cubit.dart';
 import 'package:flutter_destroyer/cubits/cultivation/cultivation_cubit.dart';
 import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
+import 'package:flutter_destroyer/cubits/soulLand/soul_land_cubit.dart';
 import 'package:flutter_destroyer/cubits/theme/theme_cubit.dart';
 import 'package:flutter_destroyer/cubits/user/user_cubit.dart';
 import 'package:flutter_destroyer/firebase_options.dart';
 import 'package:flutter_destroyer/models/fetch_handle.dart';
-import 'package:flutter_destroyer/models/soulland/tutiens.dart';
 import 'package:flutter_destroyer/models/tuTien/tu_tien.dart';
 import 'package:flutter_destroyer/pages/auth_page.dart';
 import 'package:flutter_destroyer/pages/calculator/page.dart';
@@ -21,12 +21,12 @@ import 'package:flutter_destroyer/pages/manga/mangaChapter/page.dart';
 import 'package:flutter_destroyer/pages/manga/mangaDetail/page.dart';
 import 'package:flutter_destroyer/pages/manga/page.dart';
 import 'package:flutter_destroyer/pages/setting_page.dart';
-import 'package:flutter_destroyer/pages/soulLand/components/soul_land_body.dart';
+import 'package:flutter_destroyer/pages/soulLand/page.dart';
 import 'package:flutter_destroyer/repositories/auth_repository.dart';
 import 'package:flutter_destroyer/repositories/user_repository.dart';
 import 'package:flutter_destroyer/utils/scaffold.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 /* 
 flutter run --web-port 3000
@@ -34,6 +34,9 @@ flutter run --web-port 3000
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+  await Hive.openBox("settings");
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -174,7 +177,14 @@ class MyApp extends StatelessWidget {
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (context) => ThemeCubit()),
+          BlocProvider(create: (context) {
+            return ThemeCubit(
+              theme: Hive.box("settings").get(
+                "theme",
+                defaultValue: false,
+              ) as bool,
+            );
+          }),
           BlocProvider(create: (context) => BottomIndexedCubit()),
           BlocProvider(create: (context) {
             return UserCubit(
@@ -187,13 +197,7 @@ class MyApp extends StatelessWidget {
             );
           }),
           BlocProvider(create: (context) => MangaCubit()),
-          MultiProvider(
-            providers: [
-              ChangeNotifierProvider(
-                create: (_) => TuTien(),
-              ),
-            ],
-          ),
+          BlocProvider(create: (context) => SoulLandCubit()),
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, state) {
