@@ -28,8 +28,8 @@ class DrawerRootFooter extends StatelessWidget {
                 scale: 0.8,
                 child: Switch(
                   value: state.theme,
-                  onChanged: (value) {
-                    context.read<ThemeCubit>().listen(value);
+                  onChanged: (value) async {
+                    await context.read<ThemeCubit>().listen(value);
                   },
                 ),
               ),

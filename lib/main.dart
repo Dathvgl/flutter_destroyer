@@ -24,6 +24,7 @@ import 'package:flutter_destroyer/pages/setting_page.dart';
 import 'package:flutter_destroyer/pages/soulLand/page.dart';
 import 'package:flutter_destroyer/repositories/auth_repository.dart';
 import 'package:flutter_destroyer/repositories/user_repository.dart';
+import 'package:flutter_destroyer/utils/handle_state.dart';
 import 'package:flutter_destroyer/utils/scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -48,25 +49,6 @@ Future<void> main() async {
   );
 
   await FetchHandle().cookie();
-
-  // runApp(
-  //   FutureBuilder(
-  //     future: DbHelper.instance.getTuTiens(),
-  //     builder: (context, snapshot) {
-  //       if (!snapshot.hasData) {
-  //         return const LoadingPage();
-  //       }
-
-  //       List<TuTien>? tutienList = snapshot.data as List<TuTien>?;
-  //       if (tutienList!.isEmpty) {
-  //         DbHelper.instance.add(TuTien());
-  //         return init(TuTien());
-  //       }
-
-  //       return init(tutienList.last);
-  //     },
-  //   ),
-  // );
 
   final tuTiens = await _initCultivation();
 
@@ -201,13 +183,15 @@ class MyApp extends StatelessWidget {
         ],
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, state) {
-            return MaterialApp.router(
-              debugShowCheckedModeBanner: false,
-              title: "Flutter Destroyer",
-              theme: state.useTheme,
-              routerDelegate: _router.routerDelegate,
-              routeInformationParser: _router.routeInformationParser,
-              routeInformationProvider: _router.routeInformationProvider,
+            return HandleState(
+              child: MaterialApp.router(
+                debugShowCheckedModeBanner: false,
+                title: "Flutter Destroyer",
+                theme: state.useTheme,
+                routerDelegate: _router.routerDelegate,
+                routeInformationParser: _router.routeInformationParser,
+                routeInformationProvider: _router.routeInformationProvider,
+              ),
             );
           },
         ),

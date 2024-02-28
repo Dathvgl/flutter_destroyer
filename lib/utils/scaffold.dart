@@ -5,9 +5,9 @@ import 'package:flutter_destroyer/cubits/manga/manga_cubit.dart';
 import 'package:flutter_destroyer/drawer/index.dart';
 import 'package:flutter_destroyer/extensions/string.dart';
 import 'package:flutter_destroyer/pages/manga/mangaChapter/manga_chapter_end_drawer.dart';
-import 'package:flutter_destroyer/pages/soulLand/components/base.dart';
 import 'package:flutter_destroyer/pages/soulLand/components/soul_land_bottom_navigation.dart';
-import 'package:flutter_destroyer/pages/soulland/vohon.dart';
+import 'package:flutter_destroyer/pages/soulLand/components/soul_land_selection.dart';
+import 'package:flutter_destroyer/pages/soulLand/martialSoul/martial_soul_introduce.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
@@ -107,7 +107,7 @@ Scaffold scaffoldHandle({
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (_) => const HuongDanVoHon(),
+                builder: (_) => const MartialSoulIntroduce(),
               );
             },
             icon: const FaIcon(
@@ -122,7 +122,7 @@ Scaffold scaffoldHandle({
 
     floatingActionButtonLocation = FloatingActionButtonLocation.miniStartFloat;
 
-    floatingActionButton = const LuaChonTuLuyen();
+    floatingActionButton = SoulLandSelection();
   }
 
   return Scaffold(
